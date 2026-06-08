@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: credit-score
-        image: mohammadshp/credit-score:latest
+        image: tiangolo/uvicorn-gunicorn-fastapi:python3.11-slim
         ports:
         - containerPort: 8000
         readinessProbe:
