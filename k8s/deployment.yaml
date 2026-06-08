@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: credit-score
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: credit-score
+  template:
+    metadata:
+      labels:
+        app: credit-score
+    spec:
+      containers:
+      - name: credit-score
+        image: mohammadshp/credit-score:latest
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
