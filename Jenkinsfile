@@ -32,11 +32,17 @@ pipeline {
     stage('Run Tests') {
       steps {
         sh '''
+          cat > /tmp/run_tests.sh << 'TESTEOF'
+#!/bin/bash
+pip install -r /app/requirements.txt -q
+pytest /app/tests/ -v
+TESTEOF
+          chmod +x /tmp/run_tests.sh
           $DOCKER run --rm \
             -v ${WORKSPACE}/app:/app \
-            -w /app \
+            -v /tmp/run_tests.sh:/run_tests.sh \
             python:3.11-slim \
-            bash -c 'pip install -r /app/requirements.txt -q && pytest /app/tests/ -v'
+            bash /run_tests.sh
         '''
       }
     }
