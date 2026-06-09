@@ -7,6 +7,7 @@ pipeline {
     DOCKERHUB_CRED = credentials('dockerhub-creds')
     GIT_CRED       = credentials('git-creds')
     GIT_REPO       = "github.com/mohammadSHP/credit-score.git"
+    DOCKER         = "/tmp/docker"
   }
 
   stages {
@@ -15,10 +16,23 @@ pipeline {
       steps { checkout scm }
     }
 
+    stage('Install Docker') {
+      steps {
+        sh '''
+          if [ ! -f /tmp/docker ]; then
+            curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-27.0.3.tgz | \
+            tar xz --strip-components=1 -C /tmp docker/docker
+            chmod +x /tmp/docker
+          fi
+          /tmp/docker --version
+        '''
+      }
+    }
+
     stage('Run Tests') {
       steps {
         sh '''
-          docker run --rm \
+          $DOCKER run --rm \
             -v ${WORKSPACE}/app:/app \
             -w /app \
             python:3.11-slim \
@@ -29,17 +43,17 @@ pipeline {
 
     stage('Build Image') {
       steps {
-        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ./app"
+        sh "$DOCKER build -t ${IMAGE_NAME}:${IMAGE_TAG} ./app"
       }
     }
 
     stage('Push to Registry') {
       steps {
         sh '''
-          echo $DOCKERHUB_CRED_PSW | docker login -u $DOCKERHUB_CRED_USR --password-stdin
-          docker push ${IMAGE_NAME}:${IMAGE_TAG}
-          docker tag  ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
-          docker push ${IMAGE_NAME}:latest
+          echo $DOCKERHUB_CRED_PSW | $DOCKER login -u $DOCKERHUB_CRED_USR --password-stdin
+          $DOCKER push ${IMAGE_NAME}:${IMAGE_TAG}
+          $DOCKER tag  ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+          $DOCKER push ${IMAGE_NAME}:latest
         '''
       }
     }
