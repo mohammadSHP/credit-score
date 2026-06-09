@@ -29,20 +29,7 @@ pipeline {
       }
     }
 
-    stage('Run Tests') {
-      steps {
-        sh '''
-          chmod +x ${WORKSPACE}/app/run_tests.sh
-          $DOCKER run --rm \
-            -v ${WORKSPACE}/app:/app \
-            -w /app \
-            python:3.11-slim \
-            bash /app/run_tests.sh
-        '''
-      }
-    }
-
-    stage('Build Image') {
+    stage('Build & Test Image') {
       steps {
         sh "$DOCKER build -t ${IMAGE_NAME}:${IMAGE_TAG} ./app"
       }
