@@ -8,6 +8,7 @@ pipeline {
     GIT_CRED       = credentials('git-creds')
     GIT_REPO       = "github.com/mohammadSHP/credit-score.git"
     DOCKER         = "/tmp/docker"
+    DOCKER_CONFIG  = "/tmp/docker-config"
   }
 
   stages {
@@ -24,6 +25,7 @@ pipeline {
             tar xz --strip-components=1 -C /tmp docker/docker
             chmod +x /tmp/docker
           fi
+          mkdir -p $DOCKER_CONFIG
           /tmp/docker --version
         '''
       }
@@ -38,10 +40,11 @@ pipeline {
     stage('Push to Registry') {
       steps {
         sh '''
-          echo $DOCKERHUB_CRED_PSW | $DOCKER login -u $DOCKERHUB_CRED_USR --password-stdin
-          $DOCKER push ${IMAGE_NAME}:${IMAGE_TAG}
-          $DOCKER tag  ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
-          $DOCKER push ${IMAGE_NAME}:latest
+          mkdir -p $DOCKER_CONFIG
+          echo $DOCKERHUB_CRED_PSW | $DOCKER --config $DOCKER_CONFIG login -u $DOCKERHUB_CRED_USR --password-stdin
+          $DOCKER --config $DOCKER_CONFIG push ${IMAGE_NAME}:${IMAGE_TAG}
+          $DOCKER --config $DOCKER_CONFIG tag  ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+          $DOCKER --config $DOCKER_CONFIG push ${IMAGE_NAME}:latest
         '''
       }
     }
