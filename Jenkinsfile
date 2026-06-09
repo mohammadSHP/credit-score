@@ -14,7 +14,11 @@ pipeline {
   stages {
 
     stage('Checkout') {
-      steps { checkout scm }
+      steps {
+        git branch: 'main',
+            credentialsId: 'git-creds',
+            url: 'https://github.com/mohammadSHP/credit-score.git'
+      }
     }
 
     stage('Install Docker') {
@@ -54,6 +58,7 @@ pipeline {
         sh '''
           git config user.email "jenkins@ci.local"
           git config user.name  "Jenkins"
+          git checkout main
           sed -i "s|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|" k8s/deployment.yaml
           git add k8s/deployment.yaml
           git commit -m "ci: bump image to ${IMAGE_TAG}"
@@ -64,6 +69,9 @@ pipeline {
   }
 
   post {
+    success {
+      echo "Pipeline succeeded — ArgoCD will deploy image ${IMAGE_TAG}"
+    }
     failure {
       echo "Pipeline failed — ArgoCD keeps last healthy deployment"
     }
