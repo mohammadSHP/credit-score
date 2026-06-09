@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: credit-score
-        image: mohammadshp/credit-score:latest
+        image: mohammadshp/credit-score:20
         ports:
         - containerPort: 8000
         readinessProbe:
