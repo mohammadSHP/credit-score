@@ -15,12 +15,12 @@ spec:
     spec:
       containers:
       - name: credit-score
-        image: tiangolo/uvicorn-gunicorn-fastapi:python3.11-slim
+        image: mohammadshp/credit-score:latest
         ports:
         - containerPort: 8000
         readinessProbe:
           httpGet:
-            path: /health
+            path: /docs
             port: 8000
-          initialDelaySeconds: 5
+          initialDelaySeconds: 15
           periodSeconds: 10
