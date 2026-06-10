@@ -6,8 +6,9 @@ metadata:
 spec:
   selector:
     app: credit-score
+  type: NodePort
   ports:
   - name: http
     port: 80
     targetPort: 8000
-  type: ClusterIP
+    nodePort: 32001
