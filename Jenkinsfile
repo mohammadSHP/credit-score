@@ -7,8 +7,8 @@ pipeline {
     DOCKERHUB_CRED = credentials('dockerhub-creds')
     GIT_CRED       = credentials('git-creds')
     GIT_REPO       = "github.com/mohammadSHP/credit-score.git"
-    DOCKER         = "/tmp/docker"
-    DOCKER_CONFIG  = "/tmp/docker-config"
+    DOCKER = "/var/jenkins_home/docker"
+    DOCKER_CONFIG  = "/var/jenkins_home/docker-config"
   }
 
   stages {
@@ -24,13 +24,13 @@ pipeline {
     stage('Install Docker') {
       steps {
         sh '''
-          if [ ! -f /tmp/docker ]; then
+          if [ ! -f /var/jenkins_home/docker ]; then
             curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-27.0.3.tgz | \
             tar xz --strip-components=1 -C /tmp docker/docker
-            chmod +x /tmp/docker
+            chmod +x /var/jenkins_home/docker
           fi
           mkdir -p $DOCKER_CONFIG
-          /tmp/docker --version
+          /var/jenkins_home/docker --version
         '''
       }
     }
